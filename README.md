@@ -32,7 +32,7 @@ Follow these steps to run SumSurferAdventures locally on your PC:
    git clone https://github.com/SuusjeVG/SumSurfersAdventures.git
    ```
 2. Install node_modules
-   ```
+   ```bash
    npm install
    ```
 3. Open website
@@ -51,8 +51,10 @@ Follow these steps to run SumSurferAdventures locally on your PC:
    ```
    You can use live server. Withouth building it's also ready to be added to a live invoirment on the internet.
 
-#Contribution
+# Contribution
+
 We welcome contributions to the project. Feel free to submit a pull request or open an issue if you encounter any problems or have suggestions for improvements.
 
-#License
+# License
+
 This project is licensed under the MIT License. See the LICENSE file for more information.
