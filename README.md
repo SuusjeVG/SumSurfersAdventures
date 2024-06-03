@@ -36,7 +36,8 @@ Follow these steps to run SumSurferAdventures locally on your PC:
    npm install
    ```
 3. Open website
-   You can open the game in your browser withouth building because of the importmap
+
+    you can open the game in your browser withouth using a builder. This is because of the importmap
    ```html
     <script type="importmap">
         {
@@ -49,7 +50,7 @@ Follow these steps to run SumSurferAdventures locally on your PC:
         }
     </script>
    ```
-   You can use live server. Withouth building it's also ready to be added to a live invoirment on the internet.
+   You can use live server. It's also ready to be added to a live invoirment on the internet.
 
 # Contribution
 
