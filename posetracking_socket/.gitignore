@@ -1,0 +1,19 @@
+# Python specific
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+venv/
+
+# Logs
+logs/
+*.log
+
+# Docker
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+.DS_Store
+.env
