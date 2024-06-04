@@ -1,6 +1,40 @@
 import { GameScene } from './scenes/GameScene.js';
+import { WebcamReader } from '../posetracking_socket/implementation/WebcamReader.js'; 
 
-const gamescene = new GameScene();
+// Controleer of getUserMedia wordt ondersteund
+// const hasGetUserMedia = () => !!navigator.mediaDevices?.getUserMedia;
+
+// if (hasGetUserMedia()) {
+//     window.webSocket = new WebSocket("ws://4.158.52.151:8766");
+
+//     window.webSocket.onopen = () => {
+//         console.log("WebSocket connection established.");
+
+//         // WebSocket is ingesteld, maak nu de WebcamReader aan
+//         window.webcamReader = new WebcamReader();
+
+//         // Initialiseer de GameScene nu de WebSocket correct is ingesteld
+//         const gamescene = new GameScene();
+
+//         function animate() {
+//             requestAnimationFrame(animate);
+//             gamescene.animate();
+//         }
+
+//         animate();
+//     };
+
+//     window.webSocket.onerror = (error) => {
+//         console.error("WebSocket Error: ", error);
+//     };
+
+//     window.webSocket.onclose = () => {
+//         console.log("WebSocket connection closed.");
+//     };
+// } else {
+//     console.warn("getUserMedia() is not supported by your browser");
+// }
+
 
 // const init = () => {
 //     const startScene = document.getElementById('startscene');
@@ -44,4 +78,6 @@ const gamescene = new GameScene();
 // };
 
 // document.addEventListener('DOMContentLoaded', init);
+
+const gamescene = new GameScene();
 

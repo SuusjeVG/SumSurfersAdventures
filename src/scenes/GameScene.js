@@ -2,9 +2,11 @@
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+// import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { gsap } from 'gsap';
+import { WebcamReader } from '../../posetracking_socket/implementation/WebcamReader.js'; 
+import { Controller } from '../../posetracking_socket/implementation/Controller.js'; 
 
 export class GameScene {
     // contructor runs everything when the class is instantiated 
@@ -14,11 +16,23 @@ export class GameScene {
         this.character;
         this.tiles = [];
         this.tilesSizeZ;
+        this.currentPosition = 0;
         this.isJumping = false; 
         this.init();
     }
 
     init() {
+        // Controleer of de WebSocket correct is ingesteld
+        // if (!window.webSocket) {
+        //     console.error("WebSocket is not defined. Make sure it is initialized before creating GameScene.");
+        //     return;
+        // }
+
+        // Initializeer de game scene componenten
+        this.setupScene();
+    }
+
+    setupScene() {
         // setting the scene
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -26,25 +40,25 @@ export class GameScene {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(this.renderer.domElement);
 
-        this.controls = new OrbitControls( this.camera, this.renderer.domElement );
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
         // lighting and background
-        this.setupHDRI()
+        this.setupHDRI();
         this.addLights();
 
-        // invoirment
+        // environment
         this.addTiles(this.scene);
 
         // character
-        // this.loadModel();
         this.loadCharacter();
-        this.characterControlls()
   
         this.camera.position.set(0, .3, 2);
 
-
-        this.resizeRenderer()
+        this.resizeRenderer();
         this.animate();
+
+        // Initialize controller and pass along webcamReader
+        this.motionController = new Controller(window.webcamReader);
     }
 
     setupHDRI() {
@@ -223,6 +237,10 @@ export class GameScene {
             }
         });
 
+        // Update player position based on motion tracking
+        if (this.motionController) {
+            this.motionController.MovePlayer(this, this.cube);
+        }
 
         this.controls.update();
         this.renderer.render(this.scene, this.camera);
