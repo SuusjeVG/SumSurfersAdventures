@@ -11,8 +11,9 @@ export class GameScene {
     // (if the method is not in the constructor but it is in the class you can call it later)
     constructor() {
         this.controls;
+        this.character;
         this.tiles = [];
-        this.tileCounter = 0;
+        this.tilesSizeZ;
         this.isJumping = false; 
         this.init();
     }
@@ -35,6 +36,7 @@ export class GameScene {
         this.addTiles(this.scene);
 
         // character
+        // this.loadModel();
         this.loadCharacter();
         this.characterControlls()
   
@@ -74,10 +76,10 @@ export class GameScene {
 		this.scene.add(directionalLight);
     }
 
-    addTiles(scene) {
+    async addTiles(scene) {
         const loader = new GLTFLoader();
         let position_tileZ = 0;
-
+    
         const tileUrls = [
             '/src/assets/3d-objects/tiles/tile-1.glb',
             '/src/assets/3d-objects/tiles/tile-3.glb',
@@ -86,114 +88,67 @@ export class GameScene {
             '/src/assets/3d-objects/tiles/tile-1.glb',
             '/src/assets/3d-objects/tiles/tile-4.glb',
         ];
-
-        tileUrls.forEach(url => {
-            loader.load(url, (gltf) => {
-                gltf.scene.position.set(0, -1.1, position_tileZ);
-
-                // checking the size of the tile
+    
+        // Create an array of promises for loading each tile 
+        // so I can load in every tile in at the same time
+        const loadTilePromises = tileUrls.map(url => {
+            return new Promise((resolve, reject) => {
+                loader.load(url, (gltf) => {
+                    resolve(gltf);
+                }, undefined, (error) => {
+                    reject(error);
+                });
+            });
+        });
+    
+        try {
+            // Wait for all tiles to be loaded
+            const loadedTiles = await Promise.all(loadTilePromises);
+    
+            // Add each tile to the scene in order
+            loadedTiles.forEach((gltf, index) => {
                 const tile = gltf.scene;
+
+                // Checking the size of the tile
                 const boundingBox = new THREE.Box3().setFromObject(tile);
                 const tileSize = boundingBox.getSize(new THREE.Vector3());
-
-                console.log(`Loaded tile from ${url}`);
-                console.log(`Tile size: X: ${tileSize.x}, Y: ${tileSize.y}, Z: ${tileSize.z}`);
-    
-                scene.add(gltf.scene);
-                this.tiles.push(gltf.scene); // keep a reference to the tile
-                position_tileZ -= 20;
-            }, undefined, (error) => {
-                console.error('An error happened while loading the GLB file', error);
+                this.tilesSizeZ = tileSize.z;
+                
+                // console.log(`Loaded tile from ${tileUrls[index]}`);
+                // console.log(`Tile size: X: ${tileSize.x}, Y: ${tileSize.y}, Z: ${tileSize.z}`);
+                
+                tile.position.set(0, -1.1, position_tileZ);
+                scene.add(tile);
+                this.tiles.push(tile); // Keep a reference to the tile
+                position_tileZ -= this.tilesSizeZ;
             });
-        });       
+        } catch (error) {
+            console.error('An error happened while loading the GLB files', error);
+        }
     }
-
-    // async addTiles(scene) {
-    //     const loader = new GLTFLoader();
-    //     let position_tileZ = 0;
+   
     
-    //     const tileUrls = [
-    //         '/src/assets/3d-objects/tiles/tile-1.glb',
-    //         '/src/assets/3d-objects/tiles/tile-3.glb',
-    //         '/src/assets/3d-objects/tiles/tile-1.glb',
-    //         '/src/assets/3d-objects/tiles/tile-2.glb',
-    //         '/src/assets/3d-objects/tiles/tile-1.glb',
-    //         '/src/assets/3d-objects/tiles/tile-4.glb',
-    //     ];
-    
-    //     for (const url of tileUrls) {
-    //         try {
-    //             const gltf = await new Promise((resolve, reject) => {
-    //                 loader.load(url, resolve, undefined, reject);
-    //             }); 
-
-    //             const tile = gltf.scene;
-    //             const boundingBox = new THREE.Box3().setFromObject(tile);
-    //             const tileSize = boundingBox.getSize(new THREE.Vector3());
-    
-    //             console.log(`Loaded tile from ${url}`);
-    //             console.log(`Tile size: ${tileSize.x}, ${tileSize.y}, ${tileSize.z}`);
-                
-                
-    //             gltf.scene.position.set(0, -1.1, position_tileZ);
-    //             scene.add(gltf.scene);
-    //             this.tiles.push(gltf.scene); // Bewaar een referentie naar de tile
-    //             position_tileZ -= 20;
-    //         } catch (error) {
-    //             console.error('An error happened while loading the GLB file', error);
-    //         }
-    //     }
-    // }
 
     // loadModel() {
-    //     const loader = new GLTFLoader();
-    //     loader.load('../assets/3d-objects/character/character-run.fbx', (gltf) => {
-    //         this.model = gltf.scene;
-    //         this.model.scale.set(0.01, 0.01, 0.01);
-    //         this.scene.add(this.model);
-
-    //         this.mixer = new THREE.AnimationMixer(this.model);
-    //         this.action = this.mixer.clipAction(gltf.animations[0]);
-    //         this.action.play();
-    //     });
-    // }
-
-    // loadCharacter() {
     //     const loader = new FBXLoader();
-    //     const texture = new THREE.TextureLoader().load('/src/assets/textures/character/skaterMaleA.png' );
-    //     const material = new THREE.MeshBasicMaterial({ map: texture });
-
-    //     loader.load('/src/assets/3d-objects/character/character.fbx', (object) => {
-    //         object.position.set(0, 0, 0);
-    //         object.scale.set(0.003, 0.003, 0.003);
-
-
-    //         // add textures to the object
-    //         object.traverse(function (child) {
-    //             if ((child).isMesh) {
-    //                 (child).material = material
-    //                 if ((child).material) {
-    //                     ((child).material).transparent = false
-    //                 }
-    //             }
-    //         })
-        
-    //         this.scene.add(object);
-    //         this.cube = object;
-
-    //          // Load run animation
-    //         const modelRun = new FBXLoader();
-    //         modelRun.load('/src/assets/3d-objects/character/run.fbx', (modelRun) => {
-    //             const mixer = new THREE.AnimationMixer(object);
-    //             const runAction = mixer.clipAction(modelRun.animations[0]);
-    //             runAction.play();
+    //     loader.setPath('../assets/3d-objects/character/');
+    //     loader.load('character.fbx', (fbx) => {
+    //         this.character = fbx;
+    //         this.character.scale.setScalar(0.1);
+    //         this.character.traverse(c => {
+    //             c.castShadow = true;
     //         });
 
-    //         // Load jump animation
-    //         loader.load('/src/assets/3d-objects/character/jump.fbx', (jumpObject) => {
-    //             const jumpAction = mixer.clipAction(jumpObject.animations[0]);
-    //             this.jumpAction = jumpAction;
+    //         const anim = new FBXLoader();
+    //         anim.setPath('../assets/3d-objects/character/');
+    //         anim.load('run.fbx', (anim) => {
+    //             const mixer = new THREE.AnimationMixer(this.character);
+    //             this.character.animations = anim;
+    //             const idle = mixer.clipAction(anim.animations[0]);
+    //             idle.play();
     //         });
+
+    //         this.scene.add(this.character);
     //     });
     // }
 
@@ -259,28 +214,12 @@ export class GameScene {
 
     animate() {
         requestAnimationFrame(() => this.animate());
-
-        // Update de positie van de tiles zodat ze naar de camera bewegen
-        // this.tiles.forEach(tile => {
-        //     // snelheid van de tiles
-        //     tile.position.z += 0.04; 
-
-        //     // Controleer of de tile achter de camera is en verplaats deze dan naar voren
-        //     if (tile.position.z > this.camera.position.z + 20) {
-        //         const lastTile = this.tiles.reduce((prev, curr) => {
-        //             return (prev.position.z < curr.position.z) ? prev : curr;
-        //         });
-                
-        //         tile.position.z = lastTile.position.z - 19;
-        //     }
-        // });
-
     
         // Update de positie van de tiles zodat ze naar de camera bewegen
         this.tiles.forEach(tile => {
-            tile.position.z += 0.04; // Pas de snelheid van de beweging aan indien nodig
-            if (tile.position.z > this.camera.position.z + 21) {
-                tile.position.z -= this.tiles.length * 20; // Verplaats de tile naar achteren als deze te ver is gekomen
+            tile.position.z += 0.04; // Speed of the tiles
+            if (tile.position.z > this.camera.position.z + (this.tilesSizeZ  + 1)) {
+                tile.position.z -= this.tiles.length * this.tilesSizeZ; // Place the tile in front of the last tile
             }
         });
 
