@@ -20,18 +20,32 @@
 
 </head>
 <body>
-    <!-- <div id="startscene">
-        <h1>Sum Surfers Adventure</h1>
+    <div id="startscene">
+        <h1>Sum Surfers <span class="big">Adventure</span></h1>
         <p> Kies je besturing: </p>
-        <div id="controlls">
-            <div class="keyboard">
+        <div id="controls">
+            <div class="controller" data-controller="keyboard">
+                <div class="canvas-container">
+                    <canvas id="keyboardCanvas"></canvas>
+                </div>
+                <p>Keyboard</p>
+            </div>
+            <div class="controller" data-controller="motiontracking">
+                <div class="canvas-container">
+                    <canvas id="motiontrackingCanvas"></canvas>
+                </div>
+                <p>Motion Tracking</p>
+            </div>
+            <!-- <div class="controller" data-controller="keyboard">
                 <img src="/src/assets/images/keyboard-controlls.webp" alt="Keyboard controlls">
+                <p>Keyboard</p>
             </div>
-            <div class="motiontracking">
+            <div class="controller" data-controller="gamepad">
                 <img src="/src/assets/images/posetracking-controlls.webp" alt="Bodytracking controlls">
-            </div>
+                <p>Gamepad</p>
+            </div> -->
         </div>
         <button id="startbutton">Start</button> 
-    </div> -->
+    </div>
 </body>
 </html>

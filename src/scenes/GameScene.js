@@ -2,6 +2,7 @@
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+// import { GLTFLoader } from '../assets/3d-objects/character/character.glb';
 import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { gsap } from 'gsap';
@@ -15,6 +16,9 @@ export class GameScene {
         this.tiles = [];
         this.tilesSizeZ;
         this.isJumping = false; 
+        this.animations = {};
+
+        this.clock = new THREE.Clock(); // Voeg de clo
         this.init();
     }
 
@@ -36,9 +40,8 @@ export class GameScene {
         this.addTiles(this.scene);
 
         // character
-        // this.loadModel();
-        this.loadCharacter();
-        this.characterControlls()
+        this.loadModel();
+        // this.loadCharacter();
   
         this.camera.position.set(0, .3, 2);
 
@@ -129,51 +132,66 @@ export class GameScene {
    
     
 
-    // loadModel() {
-    //     const loader = new FBXLoader();
-    //     loader.setPath('../assets/3d-objects/character/');
-    //     loader.load('character.fbx', (fbx) => {
-    //         this.character = fbx;
-    //         this.character.scale.setScalar(0.1);
-    //         this.character.traverse(c => {
-    //             c.castShadow = true;
-    //         });
+    loadModel() {
+        const loader = new GLTFLoader();
+        loader.load('../src/assets/3d-objects/character/character.glb', (glb) => {
+            this.character = glb.scene;
+            this.character.scale.setScalar(0.7);
+            this.character.traverse(c => {
+                c.castShadow = true;
+            });
+            this.character.position.set(0, -0.8, -0.5);
+            this.character.rotation.y = Math.PI; 
 
-    //         const anim = new FBXLoader();
-    //         anim.setPath('../assets/3d-objects/character/');
-    //         anim.load('run.fbx', (anim) => {
-    //             const mixer = new THREE.AnimationMixer(this.character);
-    //             this.character.animations = anim;
-    //             const idle = mixer.clipAction(anim.animations[0]);
-    //             idle.play();
-    //         });
+            this.mixer = new THREE.AnimationMixer(this.character);
 
-    //         this.scene.add(this.character);
-    //     });
-    // }
+            // run aniamtion
+            loader.load('../src/assets/3d-objects/character/run.glb', (runGlb) => {
+                const runAction = this.mixer.clipAction(runGlb.animations[0]);
+                runAction.play();
+                this.animations.run = runAction; // Opslaan van de run-animatie
+            });
 
-    loadCharacter() {
-        const geometry = new THREE.BoxGeometry();
-        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-        this.cube = new THREE.Mesh(geometry, material);
-        this.cube.position.set(0, -0.6, 0);
-        this.cube.scale.set(0.4, 0.4, 0.4);
-        
-        this.scene.add(this.cube);
+            //  jump aniamtion
+            loader.load('../src/assets/3d-objects/character/jump.glb', (jumpGlb) => {
+                const jumpAction = this.mixer.clipAction(jumpGlb.animations[0]);
+                this.animations.jump = jumpAction; // Opslaan van de jump-animatie
+            });
+
+            this.scene.add(this.character);
+
+            // Koppel de besturing nadat het model is geladen
+            this.setKeyboardControls();
+        });
+    }
+    update(deltaTime) {
+        if (this.mixer) {
+            this.mixer.update(deltaTime);
+        }
     }
 
-    characterControlls() {
+    // loadCharacter() {
+    //     const geometry = new THREE.BoxGeometry();
+    //     const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    //     this.cube = new THREE.Mesh(geometry, material);
+    //     this.cube.position.set(0, -0.6, 0);
+    //     this.cube.scale.set(0.4, 0.4, 0.4);
+        
+    //     this.scene.add(this.cube);
+    // }
+
+    setKeyboardControls() {
         let currentPosition = 0; // 0 = middle, -1 = left, 1 = right
 
         document.addEventListener('keydown', (event) => {
             if (event.key === 'ArrowLeft') {
                 if (currentPosition === 1) {
                     // check if in the left lane, if true move back to the middle
-                    gsap.to(this.cube.position, { duration: 0.5, x: 0 });
+                    gsap.to(this.character.position, { duration: 0.5, x: 0 });
                     currentPosition = 0;
                 } else if (currentPosition === 0) {
                     // check if in the middle lane, if true move to the right lane
-                    gsap.to(this.cube.position, { duration: 0.5, x: -1.4 });
+                    gsap.to(this.character.position, { duration: 0.5, x: -1.4 });
                     currentPosition = -1;
                 }
             }
@@ -181,11 +199,11 @@ export class GameScene {
             if (event.key === 'ArrowRight') {
                 if (currentPosition === -1) {
                     // check if in the left lane, if true move back to the middle
-                    gsap.to(this.cube.position, { duration: 0.5, x: 0 });
+                    gsap.to(this.character.position, { duration: 0.5, x: 0 });
                     currentPosition = 0;
                 } else if (currentPosition === 0) {
                     // check if in the middle lane, if true move to the right lane
-                    gsap.to(this.cube.position, { duration: 0.5, x: 1.4 });
+                    gsap.to(this.character.position, { duration: 0.5, x: 1.4 });
                     currentPosition = 1;
                 }
             }
@@ -196,12 +214,29 @@ export class GameScene {
         });
     }
 
+    setupMotionTrackingControls() {
+        // Voeg hier de logic voor motion tracking toe
+    }
+
 
     jump() {
-        this.isJumping = true;
-        gsap.to(this.cube.position, { duration: 0.3, y: 0.3, yoyo: true, repeat: 1, onComplete: () => {
-            this.isJumping = false;
-        }});
+        if (this.animations.jump) {
+            this.isJumping = true;
+            this.animations.run.fadeOut(0.1); // Stop de run-animatie
+            this.animations.jump.reset().play(); // Speel de jump-animatie
+
+            gsap.to(this.character.position, { 
+                duration: 0.3, 
+                y: this.character.position.y + 0.3,  // Verplaats omhoog
+                yoyo: true, 
+                repeat: 1, 
+                onComplete: () => {
+                    this.animations.jump.fadeOut(0.1); // Stop de jump-animatie
+                    this.animations.run.reset().fadeIn(0.1).play(); // Herstart de run-animatie
+                    this.isJumping = false; // Zet de sprongstatus terug op false
+                }
+            });
+        }
     }
 
     resizeRenderer() {
@@ -222,6 +257,10 @@ export class GameScene {
                 tile.position.z -= this.tiles.length * this.tilesSizeZ; // Place the tile in front of the last tile
             }
         });
+
+        const deltaTime = this.clock.getDelta();
+
+        this.update(deltaTime);
 
 
         this.controls.update();
