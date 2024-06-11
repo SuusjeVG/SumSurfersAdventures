@@ -2,8 +2,8 @@
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-// import { GLTFLoader } from '../assets/3d-objects/character/character.glb';
-import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+import { loadCharacter } from '../components/Character.js';
+import { addTiles } from '../components/Tile.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { gsap } from 'gsap';
 
@@ -16,13 +16,23 @@ export class GameScene {
         this.tiles = [];
         this.tilesSizeZ;
         this.isJumping = false; 
-        this.animations = {};
+        this.isPaused = false;
+        this.selectedController = null;
 
         this.clock = new THREE.Clock(); // Voeg de clo
         this.init();
     }
 
-    init() {
+    async init() {
+        this.setupScene()
+        await this.loadTiles();
+        await this.loadCharacter();
+
+        this.resizeRenderer()
+        this.animate();
+    }
+
+    setupScene() {
         // setting the scene
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -30,25 +40,20 @@ export class GameScene {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(this.renderer.domElement);
 
+        // this.scene.fog = new THREE.Fog(0x000000, 1, 15);
+
         this.controls = new OrbitControls( this.camera, this.renderer.domElement );
 
         // lighting and background
         this.setupHDRI()
         this.addLights();
 
-        // invoirment
-        this.addTiles(this.scene);
+        this.cameraPosition(-1, -.2, 2)
+    } 
 
-        // character
-        this.loadModel();
-        // this.loadCharacter();
-  
-        this.camera.position.set(0, .3, 2);
-
-
-        this.resizeRenderer()
-        this.animate();
-    }
+    cameraPosition(x, y, z) {
+        this.camera.position.set(x, y, z);
+    }    
 
     setupHDRI() {
 		const texture = new THREE.TextureLoader().load('/src/assets/textures/background/skybox.png' );
@@ -79,10 +84,7 @@ export class GameScene {
 		this.scene.add(directionalLight);
     }
 
-    async addTiles(scene) {
-        const loader = new GLTFLoader();
-        let position_tileZ = 0;
-    
+    async loadTiles() {
         const tileUrls = [
             '/src/assets/3d-objects/tiles/tile-1.glb',
             '/src/assets/3d-objects/tiles/tile-3.glb',
@@ -91,94 +93,41 @@ export class GameScene {
             '/src/assets/3d-objects/tiles/tile-1.glb',
             '/src/assets/3d-objects/tiles/tile-4.glb',
         ];
-    
-        // Create an array of promises for loading each tile 
-        // so I can load in every tile in at the same time
-        const loadTilePromises = tileUrls.map(url => {
-            return new Promise((resolve, reject) => {
-                loader.load(url, (gltf) => {
-                    resolve(gltf);
-                }, undefined, (error) => {
-                    reject(error);
-                });
-            });
-        });
-    
-        try {
-            // Wait for all tiles to be loaded
-            const loadedTiles = await Promise.all(loadTilePromises);
-    
-            // Add each tile to the scene in order
-            loadedTiles.forEach((gltf, index) => {
-                const tile = gltf.scene;
+        const { tiles, tilesSizeZ } = await addTiles(this.scene, tileUrls);
+        this.tiles = tiles;
+        this.tilesSizeZ = tilesSizeZ;
+    }
 
-                // Checking the size of the tile
-                const boundingBox = new THREE.Box3().setFromObject(tile);
-                const tileSize = boundingBox.getSize(new THREE.Vector3());
-                this.tilesSizeZ = tileSize.z;
-                
-                // console.log(`Loaded tile from ${tileUrls[index]}`);
-                // console.log(`Tile size: X: ${tileSize.x}, Y: ${tileSize.y}, Z: ${tileSize.z}`);
-                
-                tile.position.set(0, -1.1, position_tileZ);
-                scene.add(tile);
-                this.tiles.push(tile); // Keep a reference to the tile
-                position_tileZ -= this.tilesSizeZ;
-            });
-        } catch (error) {
-            console.error('An error happened while loading the GLB files', error);
+    async loadCharacter() {
+        const { character, mixer, animations } = await loadCharacter(this.scene);
+        this.character = character;
+        this.mixer = mixer;
+        this.animations = animations;
+    }
+
+    showCharacter() {
+        if (this.character) {
+            this.character.visible = true;
+            this.playAnimation('idle');
         }
     }
-   
-    
 
-    loadModel() {
-        const loader = new GLTFLoader();
-        loader.load('../src/assets/3d-objects/character/character.glb', (glb) => {
-            this.character = glb.scene;
-            this.character.scale.setScalar(0.7);
-            this.character.traverse(c => {
-                c.castShadow = true;
-            });
-            this.character.position.set(0, -0.8, -0.5);
-            this.character.rotation.y = Math.PI; 
-
-            this.mixer = new THREE.AnimationMixer(this.character);
-
-            // run aniamtion
-            loader.load('../src/assets/3d-objects/character/run.glb', (runGlb) => {
-                const runAction = this.mixer.clipAction(runGlb.animations[0]);
-                runAction.play();
-                this.animations.run = runAction; // Opslaan van de run-animatie
-            });
-
-            //  jump aniamtion
-            loader.load('../src/assets/3d-objects/character/jump.glb', (jumpGlb) => {
-                const jumpAction = this.mixer.clipAction(jumpGlb.animations[0]);
-                this.animations.jump = jumpAction; // Opslaan van de jump-animatie
-            });
-
-            this.scene.add(this.character);
-
-            // Koppel de besturing nadat het model is geladen
-            this.setKeyboardControls();
-        });
+    playAnimation(name) {
+        const action = this.animations.get(name);
+        if (action) {
+            action.reset().fadeIn(0.1).play();
+            // Stop andere animaties
+            for (let [key, anim] of this.animations) {
+                if (key !== name) anim.fadeOut(0.1);
+            }
+        }
     }
+
     update(deltaTime) {
         if (this.mixer) {
             this.mixer.update(deltaTime);
         }
     }
-
-    // loadCharacter() {
-    //     const geometry = new THREE.BoxGeometry();
-    //     const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    //     this.cube = new THREE.Mesh(geometry, material);
-    //     this.cube.position.set(0, -0.6, 0);
-    //     this.cube.scale.set(0.4, 0.4, 0.4);
-        
-    //     this.scene.add(this.cube);
-    // }
 
     setKeyboardControls() {
         let currentPosition = 0; // 0 = middle, -1 = left, 1 = right
@@ -211,8 +160,16 @@ export class GameScene {
             if (event.key === 'ArrowUp' && !this.isJumping) {
                 this.jump();
             }
+
+            if (event.key === 'ArrowDown') {
+                this.playAnimation('slide');
+                setTimeout(() => {
+                    this.playAnimation('run');
+                }, 1000);
+            }
         });
     }
+    
 
     setupMotionTrackingControls() {
         // Voeg hier de logic voor motion tracking toe
@@ -220,20 +177,18 @@ export class GameScene {
 
 
     jump() {
-        if (this.animations.jump) {
+        if (this.animations.get('jump')) {
             this.isJumping = true;
-            this.animations.run.fadeOut(0.1); // Stop de run-animatie
-            this.animations.jump.reset().play(); // Speel de jump-animatie
+            this.playAnimation('jump');
 
             gsap.to(this.character.position, { 
                 duration: 0.3, 
-                y: this.character.position.y + 0.3,  // Verplaats omhoog
+                y: this.character.position.y + 0.6,
                 yoyo: true, 
                 repeat: 1, 
                 onComplete: () => {
-                    this.animations.jump.fadeOut(0.1); // Stop de jump-animatie
-                    this.animations.run.reset().fadeIn(0.1).play(); // Herstart de run-animatie
-                    this.isJumping = false; // Zet de sprongstatus terug op false
+                    this.playAnimation('run');
+                    this.isJumping = false;
                 }
             });
         }
@@ -247,23 +202,33 @@ export class GameScene {
         }); 
     }
 
+    pauseGame() {
+        this.isPaused = true;
+    }
+
+    resumeGame() {
+        this.isPaused = false;
+    }
+
     animate() {
         requestAnimationFrame(() => this.animate());
     
-        // Update de positie van de tiles zodat ze naar de camera bewegen
-        this.tiles.forEach(tile => {
-            tile.position.z += 0.04; // Speed of the tiles
-            if (tile.position.z > this.camera.position.z + (this.tilesSizeZ  + 1)) {
-                tile.position.z -= this.tiles.length * this.tilesSizeZ; // Place the tile in front of the last tile
-            }
-        });
+        if (!this.isPaused) {
+            // Update de positie van de tiles zodat ze naar de camera bewegen
+            this.tiles.forEach(tile => {
+                tile.position.z += 0.04; // Snelheid van de tiles
+                if (tile.position.z > this.camera.position.z + (this.tilesSizeZ + 1)) {
+                    tile.position.z -= this.tiles.length * this.tilesSizeZ; // Plaats de tile weer vooraan
+                }
+            });
+        }
 
         const deltaTime = this.clock.getDelta();
 
         this.update(deltaTime);
 
-
         this.controls.update();
         this.renderer.render(this.scene, this.camera);
+
     }
 }
