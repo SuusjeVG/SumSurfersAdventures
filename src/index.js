@@ -1,3 +1,5 @@
+"use strict";
+
 import { StartScene } from './scenes/StartScene.js';
 import { GameScene } from './scenes/GameScene.js';
 import { Countdown } from './components/Countdown.js';
@@ -6,7 +8,6 @@ import { gsap } from 'gsap';
 document.addEventListener('DOMContentLoaded', () => {
     const startButton = document.getElementById('startbutton');
     const startSceneContainer = document.getElementById('startscene');
-    const countdownContainer = document.getElementById('countdown');
 
     const startScene = new StartScene();
     const gamescene = new GameScene();
@@ -18,21 +19,28 @@ document.addEventListener('DOMContentLoaded', () => {
 async function onStartButtonClick(startScene, gamescene, countdown, startSceneContainer) {
     if (!startScene.selectedControlType) return;
 
+    // game tiles pause for a moment
     gamescene.pauseGame();
 
+    // camera animation to player view
     startCameraAnimation(gamescene);
 
+    // Hide startscene with animation wait until it's done
     await hideStartScene(startSceneContainer);
 
+    // Show character with animation idle
     gamescene.showCharacter();
 
+    // if motiontracking is selected, start motiotracking.
+    initializeControls(gamescene.controlls, startScene.selectedControlType);
+
+    
     await countdown.start();
 
-    initializeControls(gamescene, startScene.selectedControlType);
-
-    gamescene.playAnimation('run');
-    
+    // Start the run animation and start the game
+    gamescene.controlls.playAnimation('run');
     gamescene.resumeGame();
+
 }
 
 function startCameraAnimation(gamescene) {
@@ -52,18 +60,10 @@ function hideStartScene(startSceneContainer) {
     });
 }
 
-function initializeControls(gamescene, controlType) {
+function initializeControls(controlls, controlType) {
     if (controlType === 'keyboard') {
-        gamescene.setKeyboardControls();
+        controlls.setKeyboardControls();
     } else if (controlType === 'motiontracking') {
-        gamescene.setupMotionTrackingControls();
+        controlls.setupMotionTrackingControls();
     }
 }
-
-
-
-
-
-
-
-

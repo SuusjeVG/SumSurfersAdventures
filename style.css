@@ -8,11 +8,17 @@
     font-family: 'RacingGame';
     src: url('/src/assets/font/RacingGames.ttf'); 
 }
+body {
+    position: relative;
+    font-family: Arial, sans-serif;
 
+    overflow: hidden;
+}
 canvas {
     z-index: 1;
 }
 
+/* Startscene */
 #startscene {
     position: absolute;
     display: flex;
@@ -20,16 +26,32 @@ canvas {
     align-items: center;
     flex-direction: column;
     gap: 50px;
-    background-color: rgba(0, 0, 0, 0.818);
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
     z-index: 5;
+    background-image: url('/src/assets/images/background.webp');
+    background-size: cover;
+    background-position: center;
+}
+#startscene .overlay {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.623);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     backdrop-filter: blur(5px);
+    z-index: 6;
+}
+#startscene img.logo {
+    width: 400px;
+    height: auto;
+    z-index: 7;
 }
 
-#startscene h1{
+/* #startscene h1{
     -webkit-text-stroke: 1px  #33ff3d; 
     font-size: 70px;
 
@@ -37,66 +59,223 @@ canvas {
     color: black;
     text-transform: uppercase;
     text-align: center;
-    width: 30%; /* Past de breedte aan de tekst aan */
-    margin: 0 auto; /* Centraal uitlijnen */
-    background: rgba(0, 0, 0, 0.5); /* Semi-transparante zwarte achtergrond */
-    padding: 10px 20px; /* Ruimte binnen de titel */
-    border-radius: 10px; /* Ronde hoeken */
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.7); /* Schaduw voor diepte */
-    letter-spacing: 2px; /* Ruimte tussen letters voor een dynamischer effect */
-    /* backdrop-filter: blur(5px); Vervaagt de achtergrond achter de titel */
-    border: 2px solid rgba(255, 0, 0, 0.8); /* Rode rand om de tekst */
-    /* text-shadow: 0 0 0px rgba(255, 0, 0, 0.8), 0 0 20px rgba(255, 0, 0, 0.6), 0 0 30px rgba(255, 0, 0, 0.4); */
-    /* background: linear-gradient(45deg, rgba(0,0,0,0.7), rgba(255,255,255,0.1)); */
-}
-#startscene h1 > span {
+    width: 30%; 
+    margin: 0 auto; 
+    background: rgba(0, 0, 0, 0.5); 
+    padding: 10px 20px; 
+    border-radius: 10px; 
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.7); 
+    letter-spacing: 2px; 
+    border: 2px solid rgba(255, 0, 0, 0.8); 
+
+} */
+/* #startscene h1 > span {
     font-size: 90px;
 
-}
+} */
 #startscene P{
     color: white;
-    font-weight: 600;
-    font-size: 36px;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    font-family: "Nunito", sans-serif;
 }
 
 .selected {
-    border: 5px solid rgb(0, 255, 21);
-    border-radius: 15px;
+    background: linear-gradient(to bottom, rgba(52, 230, 243, 0.606), rgba(45, 214, 194, 0.606)) !important; 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important; 
+    transform: translateY(-2px);
 }
 
+/* controls */
 #startscene #controls {
     display: flex;
     gap: 150px;
+    z-index: 7;
 }
-#startscene #controls > div {
+#startscene #controls .controller {
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.2)); 
+    border: 2px solid rgba(255, 255, 255, 0.6); 
+    border-radius: 12px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+    color: white;
+    cursor: pointer; 
+    display: inline-flex; 
+    align-items: center;
+    justify-content: center; 
+    font-size: 20px;
+    font-weight: bold;
+    padding: 10px; 
+    text-align: center; 
+    text-decoration: none;
+    width: 100px; 
+    height: 70px; 
+    margin: 10px; 
+}
+#startscene #controls .controller img{
+    width: 100%;
+    height: 100%;
+}
+#startscene #controls > .container{
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 400px;
-    height: 300px;
-    border-radius: 15px;
-    cursor: pointer;
-    overflow: hidden;
-}
-#startscene #controls > div:hover {
-    opacity: 0.7;
-}
-#startscene #controls > div img{
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+
 }
 
 #startbutton {
-    background-color: #f1f1f1;
-    padding: 10px 50px;
-    border-radius: 10px;
-    font-size: 30px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: 7px 30px;
+    text-transform: uppercase;
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    color: #021b47;
+    font-size: 24px;
+    font-weight: 700 ;
+    border-radius: 20px;
+    width: 140px;
+    z-index: 7;
+}
+
+/* Instructions */
+#instruction-button {
+    position: fixed;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    top: 20px;
+    right: 20px;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    font-size: 60px;
+    font-weight: 700;
+    background: linear-gradient(to bottom, rgba(52, 230, 243, 0.606), rgba(45, 214, 194, 0.606)) !important; 
+    border: 2px solid rgba(255, 255, 255, 0.6); 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+    color: white;
+    z-index: 7;
     cursor: pointer;
 }
 
+.instruction-container {
+    display: none;
+    gap: 50px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 8;
+}
+.instruction-container .card {
+    display: flex;
+    flex-direction: column;
+    width: 400px;
+    gap: 30px;
+    padding: 20px 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px #050d547d;
+    margin-top: 20px;
+    background-color: white;
+}
+.instruction-container .card video#exampleVideo{
+    width: 100%;
+    height: 200px;
+    border-radius: 15px 15px 0 0;
+    object-fit: cover;
+}
+.instruction-container .card h1 {
+    font-size: 26px;
+}
+
+/* keyboard content*/
+.keys {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.keys .key-row{
+    display: flex;
+    gap: 10px;
+}
+
+.key {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    background: linear-gradient(to bottom, rgba(92, 57, 252, 0.606), rgba(38, 1, 245, 0.606)) !important; 
+    border: 2px solid rgba(255, 255, 255, 0.6); 
+    border-radius: 12px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+    color: white;
+    cursor: pointer; 
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center; 
+    text-decoration: none;
+    width: 100px; 
+    height: 70px; 
+    margin: 10px; 
+}
+.key:active {
+    background: linear-gradient(to bottom, rgba(30, 10, 200, 0.8), rgba(0, 0, 180, 0.8));
+    transform: translateY(4px); /* Geeft het effect van indrukken */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Verkleint de schaduw om indrukken te simuleren */
+}
+.key.active {
+    background: linear-gradient(to bottom, rgba(30, 10, 200, 0.8), rgba(0, 0, 180, 0.8));
+    transform: translateY(4px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* motiontracking content */
+.card .image-container {
+    position: relative;
+    width: 100%;
+}
+.card .image-container img.desktop {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+.card .image-container img.character {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translate(-50%, -10%);
+    width: 60%;
+}
+.animate-left {
+    transform: translate(-70%, -20%) !important; /* Links van het midden */
+}
+
+.animate-right {
+    transform: translate(0%, -20%) !important; /* Rechts van het midden */
+}
+
+.animate-up {
+    transform: translate(-50%, -50%) !important; /* Boven het midden */
+}
+
+.animate-down {
+    transform: translate(-50%, 0%) !important; /* Onder het midden */
+}
+
+
+.instruction-container .card h2{
+    color: #333;
+    font-weight: arial;
+    font-size: 30px;
+}
+.instruction-container .card p {
+    color: #333;
+}
+
+
+/* on game start */
 #countdown {
     /* display: none; */
     position: fixed;
@@ -110,4 +289,10 @@ canvas {
     z-index: 1000; /* Bovenaan andere inhoud */
     font-family: Arial, sans-serif;
     text-align: center;
+}
+video#webcam {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 0;
 }

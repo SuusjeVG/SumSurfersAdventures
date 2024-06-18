@@ -1,61 +1,115 @@
-# SumSurferAdventures
+# AsyncHandDetector
 
-**SumSurferAdventures** is an educational game developed for the **GrowthMoves** project, aimed at teaching children in a fun and interactive way. The game uses motion tracking to allow children to control the character with their body, engaging in educational activities through gameplay. SumSurferAdventures is an endless runner web game built with Three.js.
+[![Build Status](https://dev.azure.com/growthmoves/GrowthMoves/_apis/build/status%2Fhandtracking_socket?branchName=dev)](https://dev.azure.com/growthmoves/GrowthMoves/_build/latest?definitionId=2&branchName=dev)
 
-## Used Modules
+## Overzicht
+`AsyncHandDetector` is een proof of concept die demonstreert hoe asynchrone programmering kan worden gebruikt om handdetectie in real-time video streams efficiënt te verwerken. Dit project maakt gebruik van de `cvzone` en mediapipe HandTrackingModule en OpenCV om videobeelden te verwerken en handbewegingen te detecteren.
 
-The project utilizes the following modules:
+## Kenmerken
+- **Asynchrone Video Verwerking:** Maakt gebruik van asyncio om de videoverwerking non-blocking en efficiënt te maken.
+- **Ruisreductie:** Implementeert een bilateraal filter om de beeldruis te verminderen voor nauwkeurigere handdetectie.
+- **Real-time Hand Tracking:** Detecteert en tekent handposities in real-time vanaf een webcam.
 
-- **three.js**: For 3D graphics and rendering.
-- **cannon-es**: For physics simulations.
-- **gsap.js**: For animations.
-- **mediapipe**: For motion tracking and hand recognition.
+## Vereisten
+- Python 3.7+ en lager dan 3.10
+- OpenCV
+- cvzone
+- asyncio
+- mediapipe
 
-## Project Structure
+Om alle benodigde bibliotheken te installeren, run je:
+```bash
+pip install opencv-python-headless cvzone mediapipe websockets numpy
+```
 
-The project structure is as follows:
+## Gebruik
+Om de AsyncHandDetector te starten, kloon eerst de repository en navigeer naar de map van het project. Voer vervolgens het volgende commando uit in je terminal:
 
-- **root**: The main directory of the project.
-  - **public**: Contains the view files.
-  - **src**: Contains all the core components of the game.
-    - **assets**: Contains all necessary assets like images, sounds, models, etc.
-    - **gamescene**: Contains the game logic and scenes.
-    - **components**: Contains various components and modules used in the game.
+```bash
+python async_hand_detector.py
+```
+Druk op q om de detector te stoppen.
 
-## Running the Game on Your PC
+## Projectstructuur
 
-Follow these steps to run SumSurferAdventures locally on your PC:
+```bash
+hand_pose_detector/
+│
+├── app/
+│   ├── __init__.py
+│   ├── detector.py          # HandPoseDetector class
+│   ├── server.py            # WebSocketServer class
+│   ├── config.py            # Configuration settings
+│   └── utils.py             # Utility functions
+│
+├── logs/                    # Log files
+│   └── .gitkeep
+│
+├── tests/
+│   ├── __init__.py
+│   ├── test_detector.py     # Unit tests for HandPoseDetector
+│   └── test_server.py       # Unit tests for WebSocketServer
+│
+├── Dockerfile
+├── requirements.txt
+├── deployment.yaml          # Kubernetes deployment file
+└── README.md
+```
 
-1. **Clone the repository**:
-   Open your terminal and run the following command to clone the repository:
-   ```bash
-   git clone https://github.com/SuusjeVG/SumSurfersAdventures.git
-   ```
-2. Install node_modules
-   ```bash
-   npm install
-   ```
-3. Open website
+## Kubernetes Deployment
+Om je applicatie in een Kubernetes cluster te draaien, gebruik je het volgende deployment.yaml bestand:
 
-    you can open the game in your browser withouth using a builder. This is because of the importmap
-   ```html
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "/node_modules/three/build/three.module.js",
-                "three/addons/": "/node_modules/three/examples/jsm/",
-                "cannon-es": "/node_modules/cannon-es/dist/cannon-es.js",
-                "gsap": "/node_modules/gsap/index.js"
-            }
-        }
-    </script>
-   ```
-   You can use live server. It's also ready to be added to a live invoirment on the internet.
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hand-pose-detector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hand-pose-detector
+  template:
+    metadata:
+      labels:
+        app: hand-pose-detector
+    spec:
+      containers:
+      - name: hand-pose-detector
+        image: your-docker-image  # Vervang 'your-docker-image' met de naam van je Docker image
+        ports:
+        - containerPort: 8765
+        volumeMounts:
+        - name: log-volume
+          mountPath: /app/logs
+      volumes:
+      - name: log-volume
+        hostPath:
+          path: /path/on/host/logs  # Vervang dit pad met het gewenste pad op je host
+          type: DirectoryOrCreate
+```
 
-# Contribution
+## Aanpassen en Toepassen van de Deployment
 
-We welcome contributions to the project. Feel free to submit a pull request or open an issue if you encounter any problems or have suggestions for improvements.
+1. Vervang your-docker-image met de naam van je Docker image (bijv. hand-pose-detector:latest).
+2. Vervang /path/on/host/logs met het pad op je host waar je de logbestanden wilt opslaan (bijv. /var/log/hand-pose-detector).
 
-# License
+Pas de deployment toe met:
 
-This project is licensed under the MIT License. See the LICENSE file for more information.
+```bash
+kubectl apply -f deployment.yaml
+```
+
+## Belangrijke Opmerkingen
+
+* Hardware Vereisten: Voor optimale prestaties wordt een moderne CPU of GPU aanbevolen vanwege de intensieve aard van videoverwerking en handtracking.
+
+* Gebruiksscenario's: Dit project is bedoeld als proof of concept en kan worden gebruikt als basis voor meer geavanceerde toepassingen zoals interactieve installaties, augmented reality toepassingen en educatieve doeleinden.
+
+## Bijdragen
+Dit project is open voor bijdragen. Als je een feature wilt toevoegen of een bug wilt corrigeren, stuur dan een pull request of open een issue.
+
+
+## Licentie
+Dit project is vrijgegeven onder de MIT licentie. Zie het LICENSE bestand voor meer informatie.
+

@@ -16,30 +16,65 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
     <script type="module" src="/src/index.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/style.css">
 
 </head>
 <body>
     <div id="startscene">
-        <h1>Sum Surfers <span class="big">Adventure</span></h1>
-        <p> Kies je besturing: </p>
+        <div class="overlay"></div>
+        <img class="logo" src="../src/assets/images/logo.png" alt="logo">
         <div id="controls">
-            <div class="controller" data-controller="keyboard">
-                <div class="canvas-container">
-                    <canvas id="keyboardCanvas"></canvas>
+            <div class="container">
+                <div class="controller" data-controller="keyboard">
+                     <img src="../src/assets/images/keyboard-solid.svg" alt="">
                 </div>
-                <p>Keyboard</p>
+                <p>TOETSENBOARD</p>
             </div>
-            <div class="controller" data-controller="motiontracking">
-                <div class="canvas-container">
-                    <canvas id="motiontrackingCanvas"></canvas>
+           <div class="container">
+                <div class="controller" data-controller="motiontracking">
+                    <img src="../src/assets/images/camera-solid.svg" alt="">
                 </div>
-                <p>Motion Tracking</p>
+                <p>WEBCAM</p>
+           </div>
+        </div>
+        
+        <div id="instruction-button">
+            ?
+        </div>
+        <div class="instruction-container">
+            <div class="card instruction-keyboard">
+                <video id="exampleVideo" autoplay loop preload="auto">
+                    <source src="../src/assets/video/instruction-controlls.mp4" type="video/mp4">
+                </video>
+                <h1> Toetsenboard controlls </h1>
+                <div class="keys">
+                    <div class="key up">↑</div>
+                    <div class="key-row">
+                        <div class="key left">←</div>
+                        <div class="key down">↓</div>
+                        <div class="key right">→</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card instruction-motion">
+                <video id="exampleVideo" autoplay loop preload="auto">
+                    <source src="../src/assets/video/instruction-controlls.mp4" type="video/mp4">
+                </video>
+                <h1> Webcam controlls </h1>
+                <div class="image-container">
+                    <img class="desktop" src="../src/assets/images/desktop.jpg" alt="">
+                    <img class="character" src="../src/assets/images/character.jpg" alt="">
+                </div>
             </div>
         </div>
+
         <button id="startbutton">Start</button> 
     </div>
-    
+
+    <video id="webcam" width="640" height="480" autoplay></video>
+
     <div id="countdown"></div>
+
 </body>
 </html>
