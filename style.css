@@ -140,31 +140,38 @@ canvas {
 
 .instruction-container {
     display: none;
-    gap: 50px;
+    grid-template-areas: 
+        "video video" 
+        "keyboard motiontracking";
     position: absolute;
     top: 50%;
     left: 50%;
+    width: 60vw;
+    height: 95vh;
     transform: translate(-50%, -50%);
-    z-index: 8;
-}
-.instruction-container .card {
-    display: flex;
-    flex-direction: column;
-    width: 400px;
-    gap: 30px;
     padding: 20px 30px;
     border-radius: 15px;
     box-shadow: 0 4px 8px #050d547d;
-    margin-top: 20px;
     background-color: white;
+    z-index: 8;
 }
-.instruction-container .card video#exampleVideo{
+.instruction-container video#exampleVideo{
+    grid-area: video;
     width: 100%;
-    height: 200px;
+    height: 300px;
     border-radius: 15px 15px 0 0;
     object-fit: cover;
 }
-.instruction-container .card h1 {
+.instruction-container .instruction-keyboard {
+    grid-area: keyboard;
+    width: 100%;
+}
+.instruction-container .instruction-motion {
+    grid-area: motiontracking;
+    width: 100%;
+}
+
+.instruction-container h1 {
     font-size: 26px;
 }
 

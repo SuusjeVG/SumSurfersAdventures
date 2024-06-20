@@ -176,33 +176,60 @@ export class Controlls {
             });
         }
     }
+
+    // Functie voor het verkrijgen van animatieduur
+    getAnimationDuration(name) {
+        const action = this.animations.get(name);
+        return action ? action.getClip().duration : 0;
+    }
     
     slide() {
         if (!this.isSliding && !this.isJumping && this.animations.get('slide')) {
             this.isSliding = true;
             this.playAnimation('slide');
-            setTimeout(() => { }, 1266);
+            const slideDuration = this.getAnimationDuration('slide');
+            setTimeout(() => {
+                this.playAnimation('run');
+                this.isSliding = false;
+            }, slideDuration * 1000);
+            // this.playAnimation('run');
+            this.isSliding = false;
+            console.log(slideDuration * 1000);
+            // setTimeout(() => { }, slideDuration * 1000);
+
             // original camera position x: 0, y: 1.5, z: 5
             // original character position character.position.set(0, 0.34, 3.8);
 
-            gsap.to(this.camera.position, { 
-                y: 0.75,
-                z: 3.5,
-                duration: 0.63, 
-                onComplete: () => {
-                    gsap.to(this.camera.position, { 
-                        y: 1.5,
-                        z: 5,
-                        duration: 0.63, 
-                        onComplete: () => {
-                            this.character.position.y = 0.34;
-                                this.playAnimation('run');
-                                this.isSliding = false;
-        
-                        }
-                    });
-                }
-            });
+            // gsap.to(this.camera.position, { 
+            //     y: 0.75,
+            //     z: 4,
+            //     duration: slideDuration - 0.5, 
+            //     onComplete: () => {
+            //         this.camera.position.y = 1.5;
+            //         this.camera.position.z = 5;
+            //         this.character.position.y = 0.34;
+            //         this.playAnimation('run');
+            //         this.isSliding = false;
+            //             // ,
+            //             // z: 5,
+            //             // duration: slideDuration, 
+            //             // onComplete: () => {
+
+            //             // }
+            //         // });
+            //     }
+            // });
+            // gsap.to(this.character.position, { 
+            //     z: 5,
+            //     duration: slideDuration - 0.5, 
+            //     onComplete: () => {
+            //         gsap.to(this.character.position, {
+            //             z: 3.8,
+            //             duration: 1,
+    
+            //         });
+            //     }
+            // });
 
             // console.log(this.character.position.z);
             

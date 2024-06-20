@@ -16,7 +16,7 @@ export class PoseLandmarkerComponent {
   
       this.poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
         baseOptions: {
-          modelAssetPath: "/src/motiontracking/model/pose_landmarker_lite.task",
+          modelAssetPath: "/src/motiontracking/model/pose_landmarker_lite.task", // pick the lite task for better performance
           delegate: "GPU",
         },
         runningMode: "VIDEO",

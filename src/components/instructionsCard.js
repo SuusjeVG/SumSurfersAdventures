@@ -5,11 +5,11 @@ export function instructionCards() {
     const instructionContainer = document.querySelector('.instruction-container');
 
     instructionButton.addEventListener('click', function() {
-        if (instructionContainer.style.display === 'flex') {
+        if (instructionContainer.style.display === 'grid') {
             instructionContainer.style.display = 'none'; 
             instructionButton.innerText = '?'; 
         } else {
-            instructionContainer.style.display = 'flex'; 
+            instructionContainer.style.display = 'grid'; 
             instructionButton.innerText = 'X'; 
         }
     });

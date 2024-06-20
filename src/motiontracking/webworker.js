@@ -2,7 +2,7 @@ self.onmessage = function(event) {
     const { type, data } = event.data;
     switch (type) {
         case 'processPoses':
-            // Verwerk de poses data
+            //  Process the poses
             const processedPoses = processPoses(data);
             postMessage({ type: 'posesProcessed', data: processedPoses });
             break;
@@ -12,7 +12,7 @@ self.onmessage = function(event) {
 function processPoses(data) {
     const { nose, leftShoulder, rightShoulder } = data;
 
-    // Voer berekeningen uit zoals in je processTrackingData
+    // add logic and mathematics here
     const noseY = nose.y;
     const leftX = leftShoulder.x;
     const rightX = rightShoulder.x;

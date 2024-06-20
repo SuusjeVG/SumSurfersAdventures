@@ -13,7 +13,7 @@ export async function loadCharacter(scene) {
     character.traverse(c => {
         c.castShadow = true;
     });
-    character.position.set(0, 0.34, 3.8);
+    character.position.set(0, 0.34, 3);
     character.rotation.y = Math.PI;
     character.visible = false;
 

@@ -19,10 +19,10 @@ export class MotionTracking {
     }
 
     async init() {
-        // Start de webcam en laat PoseLandmarker init asynchroon uitvoeren
+        // Start the webcam and wait for it to be ready
         await this.webcam.startWebcam();
 
-        // Laad PoseLandmarker als de browser idle is of direct als fallback
+        // Load the poseLandmarker and wait for it to be ready
         if ('requestIdleCallback' in window) {
             requestIdleCallback(async () => {
                 await this.initPoseLandmarker();
@@ -40,8 +40,8 @@ export class MotionTracking {
     async predictWebcam() {
         if (!this.webcam.webcamRunning) return;
 
-        // Vertraag de functie-aanroep om de belasting te verminderen
-        await new Promise(resolve => setTimeout(resolve, 100)); // Vertraag elke detectie met 100 ms
+        // Slow down the detection to 10fps
+        await new Promise(resolve => setTimeout(resolve, 100)); // 1000ms / 10fps = 100ms
 
         const results = await this.poseLandmarker.detectPoses(this.videoElement);
 
@@ -54,11 +54,11 @@ export class MotionTracking {
 
             // console.log("Essential landmarks:", essentialLandmarks);
 
-            // Stuur de verzamelde essentiële landmarks naar de WebWorker
+            // Send the essential landmarks to the worker
             this.worker.postMessage({ type: 'processPoses', data: essentialLandmarks });
         }
 
         requestAnimationFrame(this.predictWebcam.bind(this));
-        // setTimeout(this.predictWebcam.bind(this), 100); 
+        // setTimeout(this.predictWebcam.bind(this), 100); // optional alternative to requestAnimationFrame
     }
 }
