@@ -22,6 +22,9 @@ async function onStartButtonClick(startScene, gamescene, countdown, startSceneCo
     // game tiles pause for a moment
     gamescene.pauseGame();
 
+    // if motiontracking is selected, start motiotracking.
+    await initializeControls(gamescene.controlls, startScene.selectedControlType);
+
     // camera animation to player view
     startCameraAnimation(gamescene);
 
@@ -30,10 +33,6 @@ async function onStartButtonClick(startScene, gamescene, countdown, startSceneCo
 
     // Show character with animation idle
     gamescene.showCharacter();
-
-    // if motiontracking is selected, start motiotracking.
-    initializeControls(gamescene.controlls, startScene.selectedControlType);
-
     
     await countdown.start();
 
@@ -44,7 +43,7 @@ async function onStartButtonClick(startScene, gamescene, countdown, startSceneCo
 }
 
 function startCameraAnimation(gamescene) {
-    gsap.to(gamescene.camera.position, { duration: 1, x: 0, y: 0.3, z: 2 });
+    gsap.to(gamescene.camera.position, { duration: 1, x: 0, y: 1.5, z: 5 });
 }
 
 function hideStartScene(startSceneContainer) {
@@ -61,9 +60,13 @@ function hideStartScene(startSceneContainer) {
 }
 
 function initializeControls(controlls, controlType) {
-    if (controlType === 'keyboard') {
-        controlls.setKeyboardControls();
-    } else if (controlType === 'motiontracking') {
-        controlls.setupMotionTrackingControls();
-    }
+    return new Promise ((resolve) => {
+        if (controlType === 'keyboard') {
+            controlls.setKeyboardControls();
+            resolve();
+        } else if (controlType === 'motiontracking') {
+            controlls.setupMotionTrackingControls();
+            resolve();
+        }
+    });
 }

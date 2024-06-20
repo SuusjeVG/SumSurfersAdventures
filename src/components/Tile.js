@@ -27,7 +27,7 @@ export async function addTiles(scene, tileUrls) {
             if (index === 0) {
                 tilesSizeZ = tileSize.z;
             }
-            tile.position.set(0, -1.1, position_tileZ);
+            tile.position.set(0, 0, position_tileZ);
             scene.add(tile);
             tiles.push(tile);
             position_tileZ -= tilesSizeZ;

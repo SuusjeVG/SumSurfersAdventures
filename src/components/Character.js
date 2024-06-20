@@ -13,7 +13,7 @@ export async function loadCharacter(scene) {
     character.traverse(c => {
         c.castShadow = true;
     });
-    character.position.set(0, -0.8, 0.5);
+    character.position.set(0, 0.34, 3.8);
     character.rotation.y = Math.PI;
     character.visible = false;
 
@@ -42,3 +42,4 @@ async function loadAnimations(loader, mixer, animations, animationList) {
         animations.set(anim.name, action);
     }
 }
+

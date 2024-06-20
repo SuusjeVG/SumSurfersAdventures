@@ -16,7 +16,7 @@ export class PoseLandmarkerComponent {
   
       this.poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
         baseOptions: {
-          modelAssetPath: "/src/motiontracking/model/pose_landmarker_full.task",
+          modelAssetPath: "/src/motiontracking/model/pose_landmarker_lite.task",
           delegate: "GPU",
         },
         runningMode: "VIDEO",
@@ -26,11 +26,11 @@ export class PoseLandmarkerComponent {
   
     async detectPoses(videoElement) {
       if (!this.poseLandmarker) {
-        console.log("Wait! poseLandmarker not loaded yet.");
-        return;
+          console.log("Wait! poseLandmarker not loaded yet.");
+          throw new Error("PoseLandmarker is not initialized.");
       }
   
       let startTimeMs = performance.now();
       return await this.poseLandmarker.detectForVideo(videoElement, startTimeMs);
-    }
+  }
 }

@@ -6,14 +6,17 @@ export class Webcam {
   
     async startWebcam() {
       if (!navigator.mediaDevices?.getUserMedia) {
-        console.warn("getUserMedia() is not supported by your browser");
-        return;
+          console.warn("getUserMedia() is not supported by your browser");
+          return;
       }
-  
-      if (!this.webcamRunning) {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        this.videoElement.srcObject = stream;
-        this.webcamRunning = true;
+    
+      try {
+          const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+          this.videoElement.srcObject = stream;
+          this.videoElement.play(); 
+          this.webcamRunning = true;
+      } catch (error) {
+          console.error("Error accessing the webcam:", error);
       }
     }
   

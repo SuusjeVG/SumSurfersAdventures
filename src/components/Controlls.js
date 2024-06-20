@@ -40,59 +40,102 @@ export class Controlls {
         await this.MotionTracking.init();
     }
 
+    // processTrackingData(poseData) {
+    //     const {noseY, leftX, rightX, averageX } = poseData;
+
+    //     // Tresholds for lane switching (1 / 3 of the screen width on each side)
+    //     // results are with threshold of 0.05:
+    //     const leftZone = 0.33 - this.threshold; // x < 0.28
+    //     // centerzone = 0.28 <= x <= 0.72 
+    //     const rightZone = 0.67 + this.threshold; // x > 0.72
+    
+    //     // Rate limiting for lane switching 
+    //     const moveCooldown = 500; // 500ms cooldown between moves
+    //     const currentTime = Date.now();
+        
+    //     // Check if enough time has passed since the last move with current time object
+    //     if (!this.lastMoveTime || (currentTime - this.lastMoveTime > moveCooldown)) {
+    //         if (averageX > rightZone && this.currentPosition !== -1) { // Movement direction is now reversed
+    //             this.moveLeft();
+    //             this.lastMoveTime = currentTime;
+    //         } else if (averageX < leftZone && this.currentPosition !== 1) { // Movement direction is now reversed
+    //             this.moveRight();
+    //             this.lastMoveTime = currentTime;
+    //         } else if (averageX >= leftZone && averageX <= rightZone && this.currentPosition !== 0) {
+    //             this.moveCenter();
+    //             this.lastMoveTime = currentTime;
+    //         }
+    //     }
+
+    //      // Additional thresholds and cooldowns for jumping and sliding
+    //      const jumpThreshold = 0.2; // Neus boven 20% van de hoogte
+    //      const slideThreshold = 0.7; // Neus onder 70% van de hoogte
+    //      const jumpCooldown = 1000; // 1 seconde cooldown voor sprong
+    //      const slideCooldown = 1000; // 1 seconde cooldown voor slide
+ 
+    //      // Check for jump
+    //      if (noseY < jumpThreshold && (currentTime - this.lastJumpTime > jumpCooldown)) {
+    //          this.jump();
+    //          this.lastJumpTime = currentTime;
+    //      }
+ 
+    //      // Check for slide
+    //      if (noseY > slideThreshold && (currentTime - this.lastSlideTime > slideCooldown)) {
+    //          this.slide();
+    //          this.lastSlideTime = currentTime;
+    //      }
+    // }
+
     processTrackingData(poseData) {
-        const {nose, leftShoulder, rightShoulder } = poseData;
+        // look at the webworker.js for the data structure
+        const { noseY, averageShouldersX } = poseData;
     
-        // Left and right shoulder x positions
-        const leftX = leftShoulder.x;
-        const rightX = rightShoulder.x;
+        // Stel hier de tijd tussen twee bewegingsdetecties in (in milliseconden)
+        const moveCooldown = 500; // 500 ms, dus halve seconde tussen bewegingen
+        const currentTime = Date.now();
     
-        // Average x position (between left and right shoulder)
-        const averageX = (leftX + rightX) / 2;
+        // Check if enough time has passed since the last move
+        if (!this.lastMoveTime || (currentTime - this.lastMoveTime > moveCooldown)) {
+            this.evaluateLaneChange(averageShouldersX);
+            this.lastMoveTime = currentTime;
+        }
     
+        this.evaluateJumpAndSlide(noseY, currentTime);
+    }
+    
+    evaluateLaneChange(averageShouldersX) {
         // Tresholds for lane switching (1 / 3 of the screen width on each side)
         // results are with threshold of 0.05:
         const leftZone = 0.33 - this.threshold; // x < 0.28
         // centerzone = 0.28 <= x <= 0.72 
         const rightZone = 0.67 + this.threshold; // x > 0.72
     
-        // Rate limiting for lane switching 
-        const moveCooldown = 500; // 500ms cooldown between moves
-        const currentTime = Date.now();
-        
-        // Check if enough time has passed since the last move with current time object
-        if (!this.lastMoveTime || (currentTime - this.lastMoveTime > moveCooldown)) {
-            if (averageX > rightZone && this.currentPosition !== -1) { // Movement direction is now reversed
-                this.moveLeft();
-                this.lastMoveTime = currentTime;
-            } else if (averageX < leftZone && this.currentPosition !== 1) { // Movement direction is now reversed
-                this.moveRight();
-                this.lastMoveTime = currentTime;
-            } else if (averageX >= leftZone && averageX <= rightZone && this.currentPosition !== 0) {
-                this.moveCenter();
-                this.lastMoveTime = currentTime;
-            }
+        if (averageShouldersX > rightZone && this.currentPosition !== -1) {
+            this.moveLeft();
+        } else if (averageShouldersX < leftZone && this.currentPosition !== 1) {
+            this.moveRight();
+        } else if (averageShouldersX >= leftZone && averageShouldersX <= rightZone && this.currentPosition !== 0) {
+            this.moveCenter();
         }
-
-         // Additional thresholds and cooldowns for jumping and sliding
-         const jumpThreshold = 0.2; // Neus boven 20% van de hoogte
-         const slideThreshold = 0.6; // Neus onder 60% van de hoogte
-         const jumpCooldown = 1000; // 1 seconde cooldown voor sprong
-         const slideCooldown = 1000; // 1 seconde cooldown voor slide
- 
-         // Check for jump
-         if (nose.y < jumpThreshold && (currentTime - this.lastJumpTime > jumpCooldown)) {
-             this.jump();
-             this.lastJumpTime = currentTime;
-         }
- 
-         // Check for slide
-         if (nose.y > slideThreshold && (currentTime - this.lastSlideTime > slideCooldown)) {
-             this.slide();
-             this.lastSlideTime = currentTime;
-         }
     }
-
+    
+    evaluateJumpAndSlide(noseY, currentTime) {
+        const jumpThreshold = 0.2; // Neus boven 20% van de hoogte
+        const slideThreshold = 0.7; // Neus onder 70% van de hoogte
+        const jumpCooldown = 1000; // 1 seconde cooldown voor sprong
+        const slideCooldown = 1000; // 1 seconde cooldown voor slide
+    
+        if (noseY < jumpThreshold && (currentTime - this.lastJumpTime > jumpCooldown)) {
+            this.jump();
+            this.lastJumpTime = currentTime;
+        }
+    
+        if (noseY > slideThreshold && (currentTime - this.lastSlideTime > slideCooldown)) {
+            this.slide();
+            this.lastSlideTime = currentTime;
+        }
+    }
+    
     moveLeft() {
         if (this.currentPosition > -1) {
             this.currentPosition--;
@@ -118,10 +161,9 @@ export class Controlls {
     }
 
     jump() {
-        if (!this.isJumping && this.animations.get('jump')) {
+        if (!this.isJumping && !this.isSliding && this.animations.get('jump')) {
             this.isJumping = true;
             this.playAnimation('jump');
-
             gsap.to(this.character.position, { 
                 duration: 0.3, 
                 y: this.character.position.y + 0.6,
@@ -134,48 +176,71 @@ export class Controlls {
             });
         }
     }
-
+    
     slide() {
-        if (!this.isSliding && this.animations.get('slide')) {
+        if (!this.isSliding && !this.isJumping && this.animations.get('slide')) {
             this.isSliding = true;
             this.playAnimation('slide');
-            const originalZ = this.character.position.z;  // Sla de oorspronkelijke X positie van het karakter op
-            console.log('slide', originalZ);
-            // Beweeg het karakter naar de camera toe
-            gsap.to(this.character.position, {
-                duration: 0.8,  // Duur van de beweging naar voren
-                z: 1.2,
-                onComplete: () => {
-                    gsap.to(this.character.position, {
-                        duration: 0.8,  // Duur van de beweging naar voren
-                        z: 0.5,
-                    });
-                }
-            });
-            gsap.to(this.camera.position, {
-                duration: 0.8,  // Duur van de beweging naar voren
-                y: -.1,
-                z: 1,
+            setTimeout(() => { }, 1266);
+            // original camera position x: 0, y: 1.5, z: 5
+            // original character position character.position.set(0, 0.34, 3.8);
 
+            gsap.to(this.camera.position, { 
+                y: 0.75,
+                z: 3.5,
+                duration: 0.63, 
                 onComplete: () => {
-                    gsap.to(this.camera.position, {
-                        duration: 0.8,  // Duur van de beweging naar voren
-                        y: 0.3,
-                        z: 2,
+                    gsap.to(this.camera.position, { 
+                        y: 1.5,
+                        z: 5,
+                        duration: 0.63, 
+                        onComplete: () => {
+                            this.character.position.y = 0.34;
+                                this.playAnimation('run');
+                                this.isSliding = false;
+        
+                        }
                     });
                 }
             });
+
+            // console.log(this.character.position.z);
+            
+            // // Voorwaartse beweging voor het karakter
+            // const originalZ = this.character.position.z;
+            // gsap.to(this.character.position, {
+            //     duration: 1.57,
+            //     z: originalZ + 2,  // Verplaats het karakter tijdelijk voorwaarts
+            //     onComplete: () => {
+            //         // Reset de positie van het karakter na de slide
+            //         gsap.to(this.character.position, {
+            //             duration: 3.14,
+            //             z: originalZ
+            //         });
+            //     }
+            // });
     
-            setTimeout(() => {
-                // // Beweeg de camera terug naar de oorspronkelijke positie
-                // gsap.to(this.camera.position, {
-                //     duration: 0.5,
-                //     z: originalZ
-                // });
+            // // Camera verlagen en dan terugzetten
+            // const originalCameraY = this.camera.position.y;
+            // const originalCameraZ = this.camera.position.z;
+            // gsap.to(this.camera.position, {
+            //     duration: 0.8,
+            //     y: originalCameraY - 0.4,  // Verlaag de camera tijdelijk
+            //     z: originalCameraZ + 1,  // Beweeg de camera iets voorwaarts
+            //     onComplete: () => {
+            //         // Zet de camera terug naar de oorspronkelijke positie
+            //         gsap.to(this.camera.position, {
+            //             duration: 0.8,
+            //             y: originalCameraY,
+            //             z: originalCameraZ
+            //         });
+            //     }
+            // });
     
-                this.playAnimation('run');
-                this.isSliding = false;
-            }, 1000);  // Stel de tijd in volgens de duur van de slide animatie
+            // setTimeout(() => {
+            //     this.playAnimation('run');
+            //     this.isSliding = false;
+            // }, 1600);  // Wacht totdat de slide animatie voltooid is
         }
     }
 

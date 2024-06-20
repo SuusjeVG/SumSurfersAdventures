@@ -4,10 +4,10 @@
     box-sizing: border-box;
 }
 
-@font-face  {
+/* @font-face  {
     font-family: 'RacingGame';
     src: url('/src/assets/font/RacingGames.ttf'); 
-}
+} */
 body {
     position: relative;
     font-family: Arial, sans-serif;
@@ -51,28 +51,6 @@ canvas {
     z-index: 7;
 }
 
-/* #startscene h1{
-    -webkit-text-stroke: 1px  #33ff3d; 
-    font-size: 70px;
-
-    font-family: 'RacingGame';
-    color: black;
-    text-transform: uppercase;
-    text-align: center;
-    width: 30%; 
-    margin: 0 auto; 
-    background: rgba(0, 0, 0, 0.5); 
-    padding: 10px 20px; 
-    border-radius: 10px; 
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.7); 
-    letter-spacing: 2px; 
-    border: 2px solid rgba(255, 0, 0, 0.8); 
-
-} */
-/* #startscene h1 > span {
-    font-size: 90px;
-
-} */
 #startscene P{
     color: white;
     font-weight: 700;

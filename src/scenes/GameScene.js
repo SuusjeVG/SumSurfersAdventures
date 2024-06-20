@@ -39,7 +39,7 @@ export class GameScene {
         this.orbitControls = new OrbitControls(this.camera, this.renderer.domElement);
         this.setupHDRI();
         this.addLights();
-        this.cameraPosition(-1, -.2, 2);
+        this.cameraPosition(-1, 0.8, 2);
     }
 
     cameraPosition(x, y, z) {
@@ -89,6 +89,15 @@ export class GameScene {
         this.tilesSizeZ = tilesSizeZ;
     }
 
+    updateTiles() {
+        this.tiles.forEach(tile => {
+            tile.position.z += 0.04;
+            if (tile.position.z > this.camera.position.z + (this.tilesSizeZ + 1)) {
+                tile.position.z -= this.tiles.length * this.tilesSizeZ;
+            }
+        });
+    }
+
     async loadCharacter() {
         const { character, mixer, animations } = await loadCharacter(this.scene);
         this.character = character;
@@ -129,12 +138,7 @@ export class GameScene {
         requestAnimationFrame(() => this.animate());
 
         if (!this.isPaused) {
-            this.tiles.forEach(tile => {
-                tile.position.z += 0.04;
-                if (tile.position.z > this.camera.position.z + (this.tilesSizeZ + 1)) {
-                    tile.position.z -= this.tiles.length * this.tilesSizeZ;
-                }
-            });
+            this.updateTiles();
         }
 
         const deltaTime = this.clock.getDelta();
@@ -144,4 +148,5 @@ export class GameScene {
         this.orbitControls.update();
         this.renderer.render(this.scene, this.camera);
     }
+
 }

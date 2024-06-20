@@ -7,40 +7,58 @@ export class MotionTracking {
         this.poseLandmarker = new PoseLandmarkerComponent();
         this.videoElement = document.getElementById(videoElementId);
         this.onPoseData = onPoseData;
+
+        this.worker = new Worker('/src/motiontracking/webWorker.js');
+
+        this.worker.onmessage = (event) => {
+            const { type, data } = event.data;
+            if (type === 'posesProcessed') {
+                this.onPoseData(data);
+            }
+        };
     }
 
     async init() {
-        // Start de webcam
+        // Start de webcam en laat PoseLandmarker init asynchroon uitvoeren
         await this.webcam.startWebcam();
-        // Initialiseer de pose-landmarker
+
+        // Laad PoseLandmarker als de browser idle is of direct als fallback
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(async () => {
+                await this.initPoseLandmarker();
+            });
+        } else {
+            await this.initPoseLandmarker();
+        }
+    }
+
+    async initPoseLandmarker() {
         await this.poseLandmarker.init();
-        // Start pose-detectie
         this.predictWebcam();
     }
 
     async predictWebcam() {
         if (!this.webcam.webcamRunning) return;
 
+        // Vertraag de functie-aanroep om de belasting te verminderen
+        await new Promise(resolve => setTimeout(resolve, 100)); // Vertraag elke detectie met 100 ms
+
         const results = await this.poseLandmarker.detectPoses(this.videoElement);
 
-        // Verwerk de pose-data
-        if (results && results.landmarks) {
-            results.landmarks.forEach(landmark => {
-                const poseData = this.handlePoseData(landmark);
-                if (poseData) this.onPoseData(poseData);
-            });
+        if (results && results.landmarks && results.landmarks[0] && results.landmarks[0].length >= 13) {
+            const essentialLandmarks = {
+                nose: results.landmarks[0][0], // Neus, eerste landmark
+                leftShoulder: results.landmarks[0][11], // Linkerschouder, twaalfde landmark
+                rightShoulder: results.landmarks[0][12] // Rechterschouder, dertiende landmark
+            };
+
+            // console.log("Essential landmarks:", essentialLandmarks);
+
+            // Stuur de verzamelde essentiële landmarks naar de WebWorker
+            this.worker.postMessage({ type: 'processPoses', data: essentialLandmarks });
         }
 
         requestAnimationFrame(this.predictWebcam.bind(this));
-    }
-
-    handlePoseData(landmarks) {
-        const nose = landmarks[0]; // Neus
-        const leftShoulder = landmarks[11]; // Linkerschouder
-        const rightShoulder = landmarks[12]; // Rechterschouder
-
-        if (!nose || !leftShoulder || !rightShoulder) return null;
-
-        return { nose, leftShoulder, rightShoulder };
+        // setTimeout(this.predictWebcam.bind(this), 100); 
     }
 }
