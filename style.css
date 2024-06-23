@@ -323,7 +323,7 @@ canvas {
     text-align: center;
 }
 video#webcam {
-    display: flex;
+    display: none;
     transform: scaleX(-1);
     position: absolute;
     left: 0;
