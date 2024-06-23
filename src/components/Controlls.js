@@ -89,53 +89,6 @@ export class Controlls {
             this.lastSlideTime = currentTime;
         }
     }
-
-    // processTrackingData(poseData) {
-    //     const {noseY, leftX, rightX, averageX } = poseData;
-
-    //     // Tresholds for lane switching (1 / 3 of the screen width on each side)
-    //     // results are with threshold of 0.05:
-    //     const leftZone = 0.33 - this.threshold; // x < 0.28
-    //     // centerzone = 0.28 <= x <= 0.72 
-    //     const rightZone = 0.67 + this.threshold; // x > 0.72
-    
-    //     // Rate limiting for lane switching 
-    //     const moveCooldown = 500; // 500ms cooldown between moves
-    //     const currentTime = Date.now();
-        
-    //     // Check if enough time has passed since the last move with current time object
-    //     if (!this.lastMoveTime || (currentTime - this.lastMoveTime > moveCooldown)) {
-    //         if (averageX > rightZone && this.currentPosition !== -1) { // Movement direction is now reversed
-    //             this.moveLeft();
-    //             this.lastMoveTime = currentTime;
-    //         } else if (averageX < leftZone && this.currentPosition !== 1) { // Movement direction is now reversed
-    //             this.moveRight();
-    //             this.lastMoveTime = currentTime;
-    //         } else if (averageX >= leftZone && averageX <= rightZone && this.currentPosition !== 0) {
-    //             this.moveCenter();
-    //             this.lastMoveTime = currentTime;
-    //         }
-    //     }
-
-    //      // Additional thresholds and cooldowns for jumping and sliding
-    //      const jumpThreshold = 0.2; // Neus boven 20% van de hoogte
-    //      const slideThreshold = 0.7; // Neus onder 70% van de hoogte
-    //      const jumpCooldown = 1000; // 1 seconde cooldown voor sprong
-    //      const slideCooldown = 1000; // 1 seconde cooldown voor slide
- 
-    //      // Check for jump
-    //      if (noseY < jumpThreshold && (currentTime - this.lastJumpTime > jumpCooldown)) {
-    //          this.jump();
-    //          this.lastJumpTime = currentTime;
-    //      }
- 
-    //      // Check for slide
-    //      if (noseY > slideThreshold && (currentTime - this.lastSlideTime > slideCooldown)) {
-    //          this.slide();
-    //          this.lastSlideTime = currentTime;
-    //      }
-    // }
-
   
     
     moveLeft() {

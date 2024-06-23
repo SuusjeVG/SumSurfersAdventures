@@ -44,24 +44,28 @@
         </div>
         <div class="instruction-container">
             <video id="exampleVideo" autoplay loop preload="auto">
-                <source src="../src/assets/video/tutorial-controlls.mp4" type="video/mp4">
+                <source src="../src/assets/video/tutorial-controls.mp4" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
-            <div class="instruction-keyboard">
-                <h1> Toetsenboard controlls </h1>
-                <!-- <div class="keys">
-                    <div class="key up">↑</div>
-                    <div class="key-row">
-                        <div class="key left">←</div>
-                        <div class="key down">↓</div>
-                        <div class="key right">→</div>
+            <div class="instructions">
+                <div class="instruction-keyboard">
+                    <h1> Toetsenboard controls </h1>
+                    <div class="keys">
+                        <div class="key up">↑</div>
+                        <div class="key-row">
+                            <div class="key left">←</div>
+                            <div class="key down">↓</div>
+                            <div class="key right">→</div>
+                        </div>
                     </div>
-                </div> -->
-            </div>
-            <div class="instruction-motion">
-                <h1> Webcam controlls </h1>
-                <div class="image-container">
-
+                </div>
+                <div class="instruction-motion">
+                    <h1> Webcam controls </h1>
+                    <div class="image-container">   
+                        <img class="desktop" src="../src/assets/images/desktop.png" alt="">
+                        <img class="person" src="../src/assets/images/character.png" alt="">
+                        
+                    </div>
                 </div>
             </div>
         </div>
@@ -69,7 +73,7 @@
         <button id="startbutton">Start</button> 
     </div>
 
-    <video id="webcam" width="640" height="480" autoplay preload="auto"></video>
+    <video id="webcam" width="320" height="240" autoplay preload="auto"></video>
 
     <div id="countdown"></div>
 </body>

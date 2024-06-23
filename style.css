@@ -125,10 +125,10 @@ canvas {
     justify-content: center;
     top: 20px;
     right: 20px;
-    width: 100px;
-    height: 100px;
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
-    font-size: 60px;
+    font-size: 50px;
     font-weight: 700;
     background: linear-gradient(to bottom, rgba(52, 230, 243, 0.606), rgba(45, 214, 194, 0.606)) !important; 
     border: 2px solid rgba(255, 255, 255, 0.6); 
@@ -140,9 +140,8 @@ canvas {
 
 .instruction-container {
     display: none;
-    grid-template-areas: 
-        "video video" 
-        "keyboard motiontracking";
+    flex-direction: column;
+    gap: 30px;
     position: absolute;
     top: 50%;
     left: 50%;
@@ -156,23 +155,71 @@ canvas {
     z-index: 8;
 }
 .instruction-container video#exampleVideo{
-    grid-area: video;
     width: 100%;
-    height: 300px;
+    max-height: 40vh;
     border-radius: 15px 15px 0 0;
     object-fit: cover;
 }
-.instruction-container .instruction-keyboard {
-    grid-area: keyboard;
+
+/* instructions item */
+.instruction-container .instructions {
+    display: flex;
+    height: 100%;
+    gap: 20px;
+}
+.instruction-container .instructions .instruction-keyboard,
+.instruction-container .instructions .instruction-motion {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 50px;
     width: 100%;
 }
-.instruction-container .instruction-motion {
-    grid-area: motiontracking;
-    width: 100%;
+
+.instruction-container .instructions .instruction-keyboard {
+    border-right: 1px solid #333;
+}
+
+
+/* animation character */
+/*  */
+
+.instruction-container .instructions .instruction-motion img.person {
+    position: absolute;
+    transform: translateX(-50%);
+    left: 50%;
+    bottom: 5%;
+    width: 50%;
+    height: auto;
+    object-fit: contain;
+    animation: complex-movement 6s infinite;
+}
+.instruction-container .instructions .instruction-motion img.desktop {
+    position: absolute;
+    transform: translateX(-50%);
+    left: 50%;
+    bottom: 10%;
+    width: 50%;
+    height: auto;
+    object-fit: contain;
+}
+
+@keyframes complex-movement {
+    0% { transform: translateX(-50%); } /* Midden */
+    20% { transform: translateX(-110%); } /* Links */
+    30% { transform: translateX(-50%); } /* Midden */
+    50% { transform: translateX(10%); } /* Rechts */
+    60% { transform: translateX(-50%); } /* Midden */
+    70% { transform: translate(-50%, -50px); } /* Omhoog */
+    80% { transform: translate(-50%, 0); } /* Omlaag/midden */
+    90% { transform: translate(-50%, 30px); } 
+    100% { transform: translate(-50%, 0); } /* Midden */
 }
 
 .instruction-container h1 {
     font-size: 26px;
+    text-align: center;
 }
 
 /* keyboard content*/
@@ -276,9 +323,9 @@ canvas {
     text-align: center;
 }
 video#webcam {
-    display: none;
+    display: flex;
     transform: scaleX(-1);
     position: absolute;
-    right: 0;
+    left: 0;
     top: 0;
 }
