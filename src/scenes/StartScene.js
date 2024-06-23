@@ -1,10 +1,10 @@
 "use strict";
-import { instructionCards } from "../components/instructionsCard.js";
+// import { instructionCards } from "../components/instructionsCard.js";
 
 export class StartScene {
     constructor() {
         this.selectedControlType = null;
-        instructionCards();
+        // instructionCards();
         
         this.init();
     }
