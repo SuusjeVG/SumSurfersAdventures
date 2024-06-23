@@ -21,6 +21,7 @@ The project structure is as follows:
     - **assets**: Contains all necessary assets like images, sounds, models, etc.
     - **gamescene**: Contains the game logic and scenes.
     - **components**: Contains various components and modules used in the game.
+    - **Motiontracking**: Motiontracking initialisation with mediapipe and a webworker. It also includes unit tests.
 
 ## Running the Game on Your PC
 
