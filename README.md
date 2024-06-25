@@ -19,7 +19,7 @@ The project structure is as follows:
   - **public**: Contains the view files.
   - **src**: Contains all the core components of the game.
     - **assets**: Contains all necessary assets like images, sounds, models, etc.
-    - **gamescene**: Contains the game logic and scenes.
+    - **Scenes**: Contains the game logic and scenes.
     - **components**: Contains various components and modules used in the game.
     - **Motiontracking**: Motiontracking initialisation with mediapipe and a webworker. It also includes unit tests.
 
@@ -38,7 +38,7 @@ Follow these steps to run SumSurferAdventures locally on your PC:
    ```
 3. Open website
 
-    you can open the game in your browser withouth using a builder. This is because of the importmap
+    you can open the game in your browser withouth using a builder. This is because of the importmap and the use of a CDN
    ```html
     <script type="importmap">
         {
@@ -50,6 +50,7 @@ Follow these steps to run SumSurferAdventures locally on your PC:
             }
         }
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
    ```
    You can use live server. It's also ready to be added to a live invoirment on the internet.
 
@@ -62,20 +63,20 @@ Here are a few examples of what was done:
 ## PoseLandmarker.js
 
 ```javascript
-    async init() {
-        const vision = await FilesetResolver.forVisionTasks(
-            "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"
-        );
-    
-        this.poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
-            baseOptions: {
-            modelAssetPath: "/src/motiontracking/model/pose_landmarker_lite.task", // pick the lite task for better performance
-            delegate: "GPU",
-            },
-            runningMode: "VIDEO",
-            numPoses: 1,
-        });
-        }
+async init() {
+    const vision = await FilesetResolver.forVisionTasks(
+        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"
+    );
+
+    this.poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
+        baseOptions: {
+        modelAssetPath: "/src/motiontracking/model/pose_landmarker_lite.task", // pick the lite task for better performance
+        delegate: "GPU",
+        },
+        runningMode: "VIDEO",
+        numPoses: 1,
+    });
+}
 ```
 
 * Use the lightweight model for better performance.
@@ -85,31 +86,31 @@ Here are a few examples of what was done:
 Slowing down detection, using a webworker, and adding requestAnimationFrame.
 
 ```javascript
-    async predictWebcam() {
-        if (!this.webcam.webcamRunning) return;
+async predictWebcam() {
+    if (!this.webcam.webcamRunning) return;
 
-        // Slow down the detection to 10fps
-        await new Promise(resolve => setTimeout(resolve, 100)); // 1000ms / 10fps = 100ms
+    // Slow down the detection to 10fps
+    await new Promise(resolve => setTimeout(resolve, 100)); // 1000ms / 10fps = 100ms
 
-        const results = await this.poseLandmarker.detectPoses(this.videoElement);
+    const results = await this.poseLandmarker.detectPoses(this.videoElement);
 
-        if (results && results.landmarks && results.landmarks[0] && results.landmarks[0].length >= 13) {
-            const essentialLandmarks = {
-                nose: results.landmarks[0][0], // Nose, first landmark
-                leftShoulder: results.landmarks[0][11], // Leftshoulder, landmark 12
-                rightShoulder: results.landmarks[0][12] // Rightshoulder, landmark 13
-            };
+    if (results && results.landmarks && results.landmarks[0] && results.landmarks[0].length >= 13) {
+        const essentialLandmarks = {
+            nose: results.landmarks[0][0], // Nose, first landmark
+            leftShoulder: results.landmarks[0][11], // Leftshoulder, landmark 12
+            rightShoulder: results.landmarks[0][12] // Rightshoulder, landmark 13
+        };
 
-            // console.log("Essential landmarks:", essentialLandmarks);
+        // console.log("Essential landmarks:", essentialLandmarks);
 
-            // Send the essential landmarks to the worker
-            this.worker.postMessage({ type: 'processPoses', data: essentialLandmarks });
-        }
-
-        /// Call this function again to keep predicting the webcam
-        requestAnimationFrame(this.predictWebcam.bind(this));
-        // setTimeout(this.predictWebcam.bind(this), 100); // optional alternative to requestAnimationFrame
+        // Send the essential landmarks to the worker
+        this.worker.postMessage({ type: 'processPoses', data: essentialLandmarks });
     }
+
+    /// Call this function again to keep predicting the webcam
+    requestAnimationFrame(this.predictWebcam.bind(this));
+    // setTimeout(this.predictWebcam.bind(this), 100); // optional alternative to requestAnimationFrame
+}
 ```
 
 * Slowing down the detection to 10fps and sending essential landmarks to a webworker to offload the main thread.
