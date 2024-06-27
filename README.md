@@ -83,7 +83,7 @@ async init() {
 
 ## MotiotrackingHandler.js
 
-Slowing down detection, using a webworker, and adding requestAnimationFrame.
+I slowed down the detection, used a webworker, and added requestAnimationFrame.
 
 ```javascript
 async predictWebcam() {
