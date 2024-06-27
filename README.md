@@ -81,7 +81,7 @@ async init() {
 
 * Use the lightweight model for better performance.
 
-## MotiotrackingHanler.js
+## MotiotrackingHandler.js
 
 Slowing down detection, using a webworker, and adding requestAnimationFrame.
 
